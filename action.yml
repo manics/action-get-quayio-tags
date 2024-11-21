@@ -4,15 +4,21 @@ author: 'Your name or organization here'
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  repository:
+    description: The quay.io repository in the form OWNER/IMAGE
     required: true
-    default: '1000'
+    default: ''
+  version:
+    description: The new application version, must be semver (MAJOR.MINOR.PATCH)
+    required: true
+    default: ''
 
 # Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  buildNumber:
+    description:
+      The build number to use for the next image tag
+      (MAJOR.MINOR.PATCH-buildNumber)
 
 runs:
   using: node20
