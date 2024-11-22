@@ -1,26 +1,11 @@
-# Create a JavaScript Action
+# action-get-quayio-tags
 
-[![GitHub Super-Linter](https://github.com/actions/javascript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![CI](https://github.com/actions/javascript-action/actions/workflows/ci.yml/badge.svg)
+[![GitHub Super-Linter](https://github.com/manics/action-get-quayio-tags/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
+![CI](https://github.com/manics/action-get-quayio-tags/actions/workflows/ci.yml/badge.svg)
 
-Use this template to bootstrap the creation of a JavaScript action. :rocket:
+A GitHub action to fetch quay.io container image tags, and to generate build numbers.
 
-This template includes compilation support, tests, a validation workflow,
-publishing, and versioning guidance.
 
-If you are new, there's also a simpler introduction in the
-[Hello world JavaScript action repository](https://github.com/actions/hello-world-javascript-action).
-
-## Create Your Own Action
-
-To create your own action, you can use this repository as a template! Just
-follow the below instructions:
-
-1. Click the **Use this template** button at the top of the repository
-1. Select **Create a new repository**
-1. Select an owner and name for your new repository
-1. Click **Create repository**
-1. Clone your new repository
 
 > [!IMPORTANT]
 >
@@ -154,33 +139,8 @@ So, what are you waiting for? Go ahead and start customizing your action!
    file, [`.env.example`](./.env.example), and the
    [GitHub Actions Documentation](https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables).
 
-1. Commit your changes
 
-   ```bash
-   git add .
-   git commit -m "My first action is ready!"
-   ```
-
-1. Push them to your repository
-
-   ```bash
-   git push -u origin releases/v1
-   ```
-
-1. Create a pull request and get feedback on your action
-1. Merge the pull request into the `main` branch
-
-Your action is now published! :rocket:
-
-For information about versioning your action, see
-[Versioning](https://github.com/actions/toolkit/blob/main/docs/action-versioning.md)
-in the GitHub Actions toolkit.
-
-## Validate the Action
-
-You can now validate the action by referencing it in a workflow file. For
-example, [`ci.yml`](./.github/workflows/ci.yml) demonstrates how to reference an
-action in the same repository.
+## Example
 
 ```yaml
 steps:
@@ -204,28 +164,59 @@ For example workflow runs, check out the
 
 ## Usage
 
-After testing, you can create version tag(s) that developers can use to
-reference different stable versions of your action. For more information, see
-[Versioning](https://github.com/actions/toolkit/blob/main/docs/action-versioning.md)
-in the GitHub Actions toolkit.
-
-To include the action in a workflow in another repository, you can use the
-`uses` syntax with the `@` symbol to reference a specific branch, tag, or commit
-hash.
-
 ```yaml
+
+env:
+  VERSION: 5.0.0
+
 steps:
   - name: Checkout
     id: checkout
     uses: actions/checkout@v4
 
   - name: Run my Action
-    id: run-action
-    uses: actions/javascript-action@v1 # Commit with the `v1` tag
+    id: quayio
+    uses: manics/action-get-quayio-tags@main
     with:
-      milliseconds: 1000
+      repository: jupyterhub/jupyterhub
+      version: ${{ env.VERSION }}
 
   - name: Print Output
-    id: output
-    run: echo "${{ steps.run-action.outputs.time }}"
+    run: |
+      echo "${{ steps.quayio.outputs.tags }}"
+      echo "${{ steps.quayio.outputs.buildNumber }}"
+
+  - name: Define tags for built container image
+    uses:
+    with:
+      ${{ env.VERSION }}
+
+
+
+  - name: Get all relevant tags
+    id: gettags
+    uses: jupyterhub/action-major-minor-tag-calculator@v3
+    with:
+      githubToken: ${{ secrets.GITHUB_TOKEN }}
+      prefix: "my-username/my-image-name:"
+      branchRegex: "^[^/]+$"
+
+  # https://github.com/docker/login-action
+  - name: Login to DockerHub
+    uses: docker/login-action@v3
+    with:
+      username: ${{ secrets.DOCKERHUB_USERNAME }}
+      password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+
+  # https://github.com/docker/build-push-action
+  - name: Build, tag, and push images
+    uses: docker/build-push-action@v5
+    with:
+      push: true
+      # The tags expression below could with a git reference triggering
+      # this GitHub workflow evaluate to a string like:
+      #
+      # "my-username/my-image:1.2.3,my-username/my-image:1.2,my-username/my-image:1,my-username/my-image:latest"
+      #
+      tags: ${{ join(fromJson(steps.gettags.outputs.tags)) }}
 ```

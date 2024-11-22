@@ -1,96 +1,90 @@
 /**
  * Unit tests for the action's main functionality, src/main.js
  */
+const { describe, it, mock } = require('node:test')
+const assert = require('node:assert/strict')
+
 const core = require('@actions/core')
+const quayio = require('../src/quayio')
 const main = require('../src/main')
 
-// Mock the GitHub Actions core library
-const debugMock = jest.spyOn(core, 'debug').mockImplementation()
-const getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
-const setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
-const setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
+describe('main', () => {
+  it('runs main with mocks', async function () {
+    // https://github.com/nodejs/help/issues/4295
 
-// Mock the action's main function
-const runMock = jest.spyOn(main, 'run')
-
-// Other utilities
-const timeRegex = /^\d{2}:\d{2}:\d{2}/
-
-describe('action', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('sets the time output', async () => {
-    // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
-      switch (name) {
-        case 'milliseconds':
-          return '500'
-        default:
-          return ''
-      }
+    // Mock the GitHub Actions core library
+    const debug = mock.fn((...args) => {
+      console.debug(...args)
     })
+    const getInput = mock.fn(a => {
+      if (a === 'version') return '1.2.3'
+      if (a === 'repository') return 'owner/repo'
+      if (a === 'strict') return 'true'
+      if (a === 'allTags') return 'false'
+      throw new Error(`Invalid input name ${a}`)
+    })
+    const setFailed = mock.fn(() => {})
+    const setOutput = mock.fn(() => {})
+
+    mock.method(core, 'debug', debug)
+    mock.method(core, 'getInput', getInput)
+    mock.method(core, 'setFailed', setFailed)
+    mock.method(core, 'setOutput', setOutput)
+
+    const getAllMatches = mock.fn(() => ['1.2.3-1', '1.2.3-62', '1.2.3-53'])
+    mock.method(quayio, 'getAllMatches', getAllMatches)
 
     await main.run()
-    expect(runMock).toHaveReturned()
 
-    // Verify that all of the core library functions were called correctly
-    expect(debugMock).toHaveBeenNthCalledWith(1, 'Waiting 500 milliseconds ...')
-    expect(debugMock).toHaveBeenNthCalledWith(
-      2,
-      expect.stringMatching(timeRegex)
-    )
-    expect(debugMock).toHaveBeenNthCalledWith(
-      3,
-      expect.stringMatching(timeRegex)
-    )
-    expect(setOutputMock).toHaveBeenNthCalledWith(
-      1,
-      'time',
-      expect.stringMatching(timeRegex)
-    )
+    assert.equal(getInput.mock.callCount(), 4)
+
+    assert.equal(getAllMatches.mock.callCount(), 1)
+    assert.deepEqual(getAllMatches.mock.calls[0].arguments, [
+      'owner/repo',
+      '1.2.3',
+      true
+    ])
+
+    assert.equal(setOutput.mock.callCount(), 2)
+    assert.deepEqual(setOutput.mock.calls[0].arguments, [
+      'tags',
+      ['1.2.3-1', '1.2.3-62', '1.2.3-53']
+    ])
+    assert.deepEqual(setOutput.mock.calls[1].arguments, ['buildNumber', 63])
   })
 
-  it('sets a failed status', async () => {
-    // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
-      switch (name) {
-        case 'milliseconds':
-          return 'this is not a number'
-        default:
-          return ''
-      }
+  it('checks main returns errors', async function () {
+    // Mock the GitHub Actions core library
+    const debug = mock.fn((...args) => {
+      console.debug(...args)
     })
+    const getInput = mock.fn(a => {
+      if (a === 'version') return '1.2.3'
+      if (a === 'repository') return 'owner/repo'
+      if (a === 'strict') return 'invalid'
+      if (a === 'allTags') return 'invalid'
+      throw new Error(`Invalid input name ${a}`)
+    })
+    const setFailed = mock.fn(() => {})
+    const setOutput = mock.fn(() => {})
+
+    mock.method(core, 'debug', debug)
+    mock.method(core, 'getInput', getInput)
+    mock.method(core, 'setFailed', setFailed)
+    mock.method(core, 'setOutput', setOutput)
+
+    const getAllMatches = mock.fn(() => {})
+    mock.method(quayio, 'getAllMatches', getAllMatches)
 
     await main.run()
-    expect(runMock).toHaveReturned()
 
-    // Verify that all of the core library functions were called correctly
-    expect(setFailedMock).toHaveBeenNthCalledWith(
-      1,
-      'milliseconds not a number'
-    )
-  })
+    assert.equal(getInput.mock.callCount(), 4)
+    assert.equal(getAllMatches.mock.callCount(), 0)
+    assert.equal(setOutput.mock.callCount(), 0)
 
-  it('fails if no input is provided', async () => {
-    // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
-      switch (name) {
-        case 'milliseconds':
-          throw new Error('Input required and not supplied: milliseconds')
-        default:
-          return ''
-      }
-    })
-
-    await main.run()
-    expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(setFailedMock).toHaveBeenNthCalledWith(
-      1,
-      'Input required and not supplied: milliseconds'
-    )
+    assert.equal(setFailed.mock.callCount(), 1)
+    assert.deepEqual(setFailed.mock.calls[0].arguments, [
+      "strict must be 'true' or 'false': invalid"
+    ])
   })
 })

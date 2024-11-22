@@ -9,16 +9,38 @@ inputs:
     required: true
     default: ''
   version:
-    description: The new application version, must be semver (MAJOR.MINOR.PATCH)
+    description:
+      The new application version, must be MAJOR.MINOR.PATCH unless strict=false
     required: true
     default: ''
+  allTags:
+    description: If 'false' (default) assume this is being run on the latest
+      version of the image you are tagging.
+
+      If 'true' return all tags in output, not just matching ones. Use this when
+      you need to pass other tags to
+      jupyterhub/action-major-minor-tag-calculator. For example, when
+      backporting a fix to an older version
+      jupyterhub/action-major-minor-tag-calculator needs to know all newer tags
+      so that it knows whether to update MAJOR.MINOR, MAJOR, latest, etc. If you
+      have a large number of tags you may hit a quay.io API limit.
+    required: true
+    default: 'false'
+  strict:
+    description:
+      Whether to allow any version format, default is to only allow
+      MAJOR.MINOR.PATCH
+    required: true
+    default: 'true'
 
 # Define your outputs here.
 outputs:
+  tags:
+    description:
+      The list of tags. If allTags=true this is the unfiltered list of tags.
   buildNumber:
     description:
-      The build number to use for the next image tag
-      (MAJOR.MINOR.PATCH-buildNumber)
+      The build number to use for the next image tag (VERSION-buildNumber)
 
 runs:
   using: node20
