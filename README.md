@@ -3,9 +3,8 @@
 [![GitHub Super-Linter](https://github.com/manics/action-get-quayio-tags/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
 ![CI](https://github.com/manics/action-get-quayio-tags/actions/workflows/ci.yml/badge.svg)
 
-A GitHub action to fetch quay.io container image tags, and to generate build numbers.
-
-
+A GitHub action to fetch quay.io container image tags, and to generate build
+numbers.
 
 > [!IMPORTANT]
 >
@@ -139,7 +138,6 @@ So, what are you waiting for? Go ahead and start customizing your action!
    file, [`.env.example`](./.env.example), and the
    [GitHub Actions Documentation](https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables).
 
-
 ## Example
 
 ```yaml
@@ -165,7 +163,6 @@ For example workflow runs, check out the
 ## Usage
 
 ```yaml
-
 env:
   VERSION: 5.0.0
 
@@ -188,18 +185,15 @@ steps:
 
   - name: Define tags for built container image
     uses:
-    with:
-      ${{ env.VERSION }}
-
-
+    with: ${{ env.VERSION }}
 
   - name: Get all relevant tags
     id: gettags
     uses: jupyterhub/action-major-minor-tag-calculator@v3
     with:
       githubToken: ${{ secrets.GITHUB_TOKEN }}
-      prefix: "my-username/my-image-name:"
-      branchRegex: "^[^/]+$"
+      prefix: 'my-username/my-image-name:'
+      branchRegex: '^[^/]+$'
 
   # https://github.com/docker/login-action
   - name: Login to DockerHub

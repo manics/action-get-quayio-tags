@@ -10,8 +10,8 @@ inputs:
     default: ''
   version:
     description:
-      The new application version, must be MAJOR.MINOR.PATCH unless strict=false.
-      Ignored if allTags=true.
+      The new application version, must be MAJOR.MINOR.PATCH unless
+      strict=false. Ignored if allTags=true.
     required: true
     default: ''
   allTags:
