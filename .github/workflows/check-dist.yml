@@ -4,21 +4,17 @@
 # source files. This workflow ensures the `dist/` directory contains the
 # expected transpiled code.
 #
-# If this workflow is run from a feature branch, it will act as an additional CI
-# check and fail if the checked-in `dist/` directory does not match what is
-# expected from the build.
+# If this workflow is run from a feature branch, it will attempt to automatically
+# update dist. Note that you may need to manually restart other workflows due to
+# https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/triggering-a-workflow#triggering-a-workflow-from-a-workflow
 name: Check Transpiled JavaScript
 
 on:
   pull_request:
-    branches:
-      - main
   push:
-    branches:
-      - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   check-dist:
@@ -54,7 +50,7 @@ jobs:
             exit 1
           fi
           if [ "$(git diff --ignore-space-at-eol --text | wc -l)" -gt "0" ]; then
-            echo "{UPDATE}={true}" >> "$GITHUB_OUTPUT"
+            echo "UPDATE=true" >> "$GITHUB_OUTPUT"
             git diff --ignore-space-at-eol --text
           fi
 
