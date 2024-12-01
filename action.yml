@@ -1,6 +1,8 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: get-quayio-tags
+description:
+  A GitHub action to fetch quay.io container image tags, and to generate build
+  numbers.
+author: JupyterHub
 
 # Define your inputs here.
 inputs:
@@ -11,7 +13,7 @@ inputs:
   version:
     description:
       The new application version, must be MAJOR.MINOR.PATCH unless
-      strict=false. Ignored if allTags=true.
+      strict=false.
     required: true
     default: ''
   allTags:

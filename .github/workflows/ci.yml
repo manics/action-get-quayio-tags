@@ -37,8 +37,8 @@ jobs:
         run: npm run lint
 
       - name: Test
-        id: npm-ci-test
-        run: npm run ci-test
+        id: npm-test
+        run: npm run test
 
   test-action:
     name: GitHub Actions Test
@@ -53,8 +53,18 @@ jobs:
         id: test-action
         uses: ./
         with:
-          milliseconds: 1000
+          repository: jupyterhub/jupyterhub
+          # This is an old release, so won't be updated
+          version: '5.2.0'
 
-      - name: Print Output
+      - name: Check Output
         id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+        run: |
+          if [ "${{ steps.test-action.outputs.tags }}" != "[]" ]; then
+            echo "ERROR: ${{ steps.test-action.outputs.tags }} != []"
+            exit 1
+          fi
+          if [ "${{ steps.test-action.outputs.buildNumber }}" != "0" ]; then
+            echo "ERROR: ${{ steps.test-action.outputs.buildNumber }} != 0"
+            exit 1
+          fi
