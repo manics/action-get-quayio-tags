@@ -4145,7 +4145,9 @@ async function run() {
     const buildNumber = quayio.nextBuildNumber(version, tags)
     core.info(`Next buildNumber: ${buildNumber}`)
     core.setOutput('tags', tags)
+    core.exportVariable('GET_QUAYIO_TAGS_TAGS', tags)
     core.setOutput('buildNumber', buildNumber)
+    core.exportVariable('GET_QUAYIO_TAGS_BUILDNUMBER', buildNumber)
   } catch (error) {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
