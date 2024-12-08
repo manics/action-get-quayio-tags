@@ -14,17 +14,21 @@ on:
   push:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   check-dist:
     name: Check dist/
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         id: setup-node
