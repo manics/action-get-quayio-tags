@@ -70,3 +70,14 @@ jobs:
             echo "ERROR: ${{ steps.test-action.outputs.buildNumber }} != 0"
             exit 1
           fi
+
+      - name: Check environment output
+        run: |
+          if [ "$GET_QUAYIO_TAGS_TAGS" != "[]" ]; then
+            echo "ERROR: $GET_QUAYIO_TAGS_TAGS != []"
+            exit 1
+          fi
+          if [ "$GET_QUAYIO_TAGS_BUILDNUMBER" != "0" ]; then
+            echo "ERROR: $GET_QUAYIO_TAGS_BUILDNUMBER != 0"
+            exit 1
+          fi

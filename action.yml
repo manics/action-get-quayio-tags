@@ -41,9 +41,11 @@ outputs:
   tags:
     description:
       The list of tags. If allTags=true this is the unfiltered list of tags.
+      This is also exported as the environment variable GET_QUAYIO_TAGS_TAGS
   buildNumber:
     description:
-      The build number to use for the next image tag (VERSION-buildNumber)
+      The build number to use for the next image tag (VERSION-buildNumber). This
+      is also exported as the environment variable GET_QUAYIO_TAGS_BUILDNUMBER
 
 runs:
   using: node20

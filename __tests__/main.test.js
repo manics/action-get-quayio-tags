@@ -25,11 +25,13 @@ describe('main', () => {
     })
     const setFailed = mock.fn(() => {})
     const setOutput = mock.fn(() => {})
+    const exportVariable = mock.fn(() => {})
 
     mock.method(core, 'debug', debug)
     mock.method(core, 'getInput', getInput)
     mock.method(core, 'setFailed', setFailed)
     mock.method(core, 'setOutput', setOutput)
+    mock.method(core, 'exportVariable', exportVariable)
 
     const getAllMatches = mock.fn(() => ['1.2.3-1', '1.2.3-62', '1.2.3-53'])
     mock.method(quayio, 'getAllMatches', getAllMatches)
@@ -51,6 +53,16 @@ describe('main', () => {
       ['1.2.3-1', '1.2.3-62', '1.2.3-53']
     ])
     assert.deepEqual(setOutput.mock.calls[1].arguments, ['buildNumber', 63])
+
+    assert.equal(exportVariable.mock.callCount(), 2)
+    assert.deepEqual(exportVariable.mock.calls[0].arguments, [
+      'GET_QUAYIO_TAGS_TAGS',
+      ['1.2.3-1', '1.2.3-62', '1.2.3-53']
+    ])
+    assert.deepEqual(exportVariable.mock.calls[1].arguments, [
+      'GET_QUAYIO_TAGS_BUILDNUMBER',
+      63
+    ])
   })
 
   it('checks main returns errors', async function () {
@@ -67,11 +79,13 @@ describe('main', () => {
     })
     const setFailed = mock.fn(() => {})
     const setOutput = mock.fn(() => {})
+    const exportVariable = mock.fn(() => {})
 
     mock.method(core, 'debug', debug)
     mock.method(core, 'getInput', getInput)
     mock.method(core, 'setFailed', setFailed)
     mock.method(core, 'setOutput', setOutput)
+    mock.method(core, 'exportVariable', exportVariable)
 
     const getAllMatches = mock.fn(() => {})
     mock.method(quayio, 'getAllMatches', getAllMatches)
@@ -81,6 +95,7 @@ describe('main', () => {
     assert.equal(getInput.mock.callCount(), 4)
     assert.equal(getAllMatches.mock.callCount(), 0)
     assert.equal(setOutput.mock.callCount(), 0)
+    assert.equal(exportVariable.mock.callCount(), 0)
 
     assert.equal(setFailed.mock.callCount(), 1)
     assert.deepEqual(setFailed.mock.calls[0].arguments, [
