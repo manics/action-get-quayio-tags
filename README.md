@@ -23,7 +23,7 @@ If a new release `5.2.2` was made the `buildNumber` would be `0`, i.e. tag
 ## Automatically create latest and SemVer tags
 
 Pass the outputs of this action to
-[action-major-minor-tag-calculator#354](https://github.com/jupyterhub/action-major-minor-tag-calculator/pull/354):
+[action-major-minor-tag-calculator v3.3.0 or later](https://github.com/jupyterhub/action-major-minor-tag-calculator):
 
 > [!WARNING]
 >
@@ -72,7 +72,7 @@ steps:
 
   - name: Calculate tags
     id: imagetags
-    uses: manics/action-major-minor-tag-calculator@allow-external-tag
+    uses: jupyterhub/action-major-minor-tag-calculator@v3
     with:
       tagList: ${{ steps.quayio.outputs.tags }}
       currentTag: ${{ env.APP_VERSION }}-${{ steps.quayio.outputs.buildNumber }}
