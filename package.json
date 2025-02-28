@@ -30,7 +30,7 @@
     "lint": "npx eslint . -c ./.github/linters/.eslintrc.yml",
     "package": "npx ncc build src/index.js -o dist --source-map --license licenses.txt",
     "package:watch": "npm run package -- --watch",
-    "test": "node --test --experimental-test-coverage __tests__/",
+    "test": "node --test --experimental-test-coverage __tests__/*.test.js",
     "all": "npm run format:write && npm run lint && npm run test && npm run package"
   },
   "license": "MIT",
